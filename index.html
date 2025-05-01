@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buse İçin</title>
+    <style>
+        body {
+            font-family: 'Arial', cursive;
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .envelope-container {
+            position: relative;
+            width: 320px;
+            height: 220px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .envelope {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #e74c3c;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            transform-style: preserve-3d;
+            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            z-index: 2;
+        }
+
+        .envelope:before, .envelope:after {
+            content: '';
+            position: absolute;
+            background: #c0392b;
+            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        .envelope:before {
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            clip-path: polygon(0% 0%, 100% 0%, 50% 50%);
+            transform-origin: top;
+            z-index: 3;
+        }
+
+        .envelope:after {
+            width: 50px;
+            height: 20px;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            filter: blur(5px);
+            opacity: 0.5;
+        }
+
+        .letter {
+            position: absolute;
+            width: 94%;
+            height: 94%;
+            background: #fff;
+            top: 3%;
+            left: 3%;
+            border-radius: 5px;
+            padding: 15px;
+            box-sizing: border-box;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transform-origin: bottom;
+            transition: all 1s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .letter:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                #fff,
+                #fff 24px,
+                #e0e0e0 25px,
+                #e0e0e0 26px
+            );
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .letter-content {
+            position: relative;
+            height: 100%;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .letter-content::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .letter-content::-webkit-scrollbar-thumb {
+            background: #e74c3c;
+            border-radius: 3px;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 24px;
+            color: #e74c3c;
+            opacity: 0;
+            z-index: 4;
+            pointer-events: none;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .open .envelope {
+            transform: rotateX(180deg) translateY(-50px);
+        }
+
+        .open .envelope:before {
+            transform: rotateX(180deg);
+        }
+
+        .open .envelope:after {
+            opacity: 0;
+        }
+
+        .open .letter {
+            transform: translateY(-180px) scale(1.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .open .heart {
+            opacity: 1;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        /* Mektup içeriği stil */
+        .letter p {
+            margin: 10px 0;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .letter .signature {
+            font-family: 'Brush Script MT', cursive;
+            font-size: 20px;
+            color: #e74c3c;
+            margin-top: 15px;
+        }
+
+        /* Kapanış butonu */
+        .close-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            z-index: 5;
+        }
+
+        .open .close-btn {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="envelope-container" id="envelope">
+        <div class="envelope"></div>
+        <div class="letter">
+            <button class="close-btn">×</button>
+            <div class="letter-content">
+                <p><strong>Sevgilim Buse İçinnnnnn</strong></p>
+                <p>Dünyadaki en şanslı insan olduğumu hissediyorum. Seninle geçirdiğim her an, hayatıma anlam katıyor.</p>
+                <p>Biliyor musun? Seni düşünmek bile içimi ısıtıyor. Belki bu mektup sana olan hislerimi tam anlatamaz ama inan bana, sen benim için her şeysin.</p>
+                <p>Seni seviyorum</p>
+                <p class="signature">Sevgilerimle Yavuz</p>
+            </div>
+        </div>
+        <div class="heart">❤️</div>
+    </div>
+
+    <script>
+        const envelope = document.getElementById('envelope');
+        const closeBtn = document.querySelector('.close-btn');
+        const hearts = [];
+        
+        // Zarfı aç/kapa
+        envelope.addEventListener('click', function(e) {
+            if (!e.target.classList.contains('close-btn')) {
+                this.classList.toggle('open');
+                
+                // Açıldığında kalpler oluştur
+                if (this.classList.contains('open')) {
+                    createHearts();
+                }
+            }
+        });
+        
+        // Kapat butonu
+        closeBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            envelope.classList.remove('open');
+        });
+        
+        // Uçan kalpler
+        function createHearts() {
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart flying';
+                    heart.innerHTML = '❤️';
+                    heart.style.left = Math.random() * 100 + 'vw';
+                    heart.style.top = '100vh';
+                    heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                    heart.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    document.body.appendChild(heart);
+                    
+                    // Kalpleri hareket ettir
+                    animateHeart(heart);
+                    
+                    // Kalpleri temizle
+                    setTimeout(() => {
+                        heart.remove();
+                    }, 5000);
+                }, i * 300);
+            }
+        }
+        
+        function animateHeart(heart) {
+            let pos = 100;
+            const id = setInterval(() => {
+                if (pos < -50) {
+                    clearInterval(id);
+                } else {
+                    pos -= 0.5;
+                    heart.style.top = pos + 'vh';
+                    heart.style.left = parseFloat(heart.style.left) + (Math.random() - 0.5) + 'vw';
+                }
+            }, 20);
+        }
+    </script>
+</body>
+</html>
